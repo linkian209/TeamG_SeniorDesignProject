@@ -1,12 +1,12 @@
 #include <iostream>
-#include "../inc/PWMManager.h"
+#include "PWMManager.hpp"
 
 using namespace std;
 
 int main()
 {
 	cout << "Getting Singleton..." << endl;
-	getPWMMgr();
+	PWMMgr();
 	cout << "Done!" << endl;
 
 	return 0;

@@ -1,19 +1,30 @@
 #include "PWMManager.hpp"
+#include <iostream>
 
 PWMManager::PWMManager() :
-yaw(BlackLib::P9_14),
-pitch(BlackLib::P9_16)
+m_pitch(BlackLib::P9_14),
+m_yaw(BlackLib::P9_16)
 {
-
+	std::cout << "Creating PWMManager.\n";
+	// Set up duty
+	m_pitch.setDutyPercent(100-m_dutyMin);
+	m_yaw.setDutyPercent(100-m_dutyMin);
 }
 
 PWMManager::~PWMManager()
 {
-
+	std::cout << "Destroying PWMManager.\n";
 }
 
-PWMManager& getPWMMgr()
+void PWMManager::test()
 {
-	static PWMManager theManager;
-	return theManager;
+	std::cout << "Successfully called the singleton!\n";
+}
+
+bool PWMManager::setPitch(float angle)
+{
+	if(!m_pitch)
+	{
+		
+	}
 }

@@ -4,9 +4,11 @@ CXX = g++
 INCLUDES = -Iinc/
 CXXFLAGS = -std=c++11 $(INCLUDES)
 
-SRC = ./src/BlackCore.cpp ./src/BlackPWM.cpp ./src/BlackGPIO.cpp ./src/PWMManager.cpp ./src/main.cpp
+SRC = ./src/BlackCore.cpp ./src/BlackPWM.cpp ./src/BlackGPIO.cpp ./src/PWMManager.cpp ./src/BluetoothManager.cpp ./src/main.cpp
 
-OBJECTS = $(SRC:.cpp=.o) 
+SRCWILD = $(wildcard ./src/*.cpp)
+
+OBJECTS = $(SRCWILD:.cpp=.o) 
 
 TARGET = drakeOS
 

@@ -3,7 +3,9 @@
 
 PWMManager::PWMManager() :
 m_pitch(BlackLib::P9_14),
-m_yaw(BlackLib::P9_16)
+m_yaw(BlackLib::P9_16),
+m_pitchFB(BlackLib::AIN4),
+m_yawFB(BlackLib::AIN6)
 {
 	std::cout << "Creating PWMManager.\n";
 	// Set up duty
@@ -23,8 +25,25 @@ void PWMManager::test()
 
 bool PWMManager::setPitch(float angle)
 {
-	if(!m_pitch)
-	{
-		
-	}
+	float newPitch = 100 - ((angle / 180) * m_dutySpan + m_dutyMin);
+	m_currentPitch = newPitch;
+	return m_pitch.setDutyPercent(newPitch);
+ 
+}
+
+bool PWMManager::setYaw(float angle)
+{
+	float newYaw = 100 - ((angle / 180) * m_dutySpan + m_dutyMin);
+	m_currentYaw = newYaw;
+	return m_yaw.setDutyPercent(newYaw);
+}
+
+float PWMManager::getCurrentPitch()
+{
+	return m_currentPitch;
+}
+
+float PWMManager::getCurrentYaw()
+{
+	return m_currentYaw;
 }

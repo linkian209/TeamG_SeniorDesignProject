@@ -21,7 +21,9 @@ class PWMManager
 		
 		// PWM functions
 		bool setPitch(float angle);
+		float getCurrentPitch();
 		bool setYaw(float angle);
+		float getCurrentYaw();
 
 		// Test function
 		void test();
@@ -34,11 +36,11 @@ class PWMManager
 		BlackLib::BlackPWM m_pitch;	// up down
 		BlackLib::BlackPWM m_yaw;	// left right
 		// ADC Feedback Pins
-		BlackLib::BlackADC m_pitchFB
-		BlackLib::BlackADC m_yawFB
+		BlackLib::BlackADC m_pitchFB;
+		BlackLib::BlackADC m_yawFB;
 		// Member Variables
-		float currentPitch = 0;	// Current Angle of Pitch
-		float currentYaw	 = 0;	// Current Angle of Yaw
+		float m_currentPitch 	= 0;	// Current Angle of Pitch
+		float m_currentYaw	= 0;	// Current Angle of Yaw
 		// Duty Cycle Calculation variables
 		int m_dutyMin = 3;
 		float m_dutySpan = 11.5;

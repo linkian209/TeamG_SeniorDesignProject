@@ -1,14 +1,14 @@
 /*********************
- * Base Thread       *
+ * Video Thread      *
  * Author: Ian Drake *
  * Copyright: 2016   *
  *********************/
-#ifndef USERTHREAD__HPP
-#define USERTHREAD__HPP
+#ifndef VIDEOTHREAD__HPP
+#define VIDEOTHREAD__HPP
 
 #include <thread>
 
-class UserThread
+class VideoThread
 {
 	private:
 		// Thread variables
@@ -17,8 +17,8 @@ class UserThread
 
 	public:
 		// Constructor and Destructor
-		UserThread();
-		~UserThread();
+		VideoThread();
+		~VideoThread();
 		// Thread Functions
 		void startThread();
 		void stopThread();

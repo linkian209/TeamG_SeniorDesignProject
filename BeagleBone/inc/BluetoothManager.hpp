@@ -21,6 +21,11 @@ class BluetoothManager
 
 		// Mutex
 		std::mutex lock;
+		bool Lock() {return lock.try_lock();}
+		void Unlock() {lock.unlock();}
+
+		// Functions
+		void test();
 
 	private:
 		// Constructor and Destructor

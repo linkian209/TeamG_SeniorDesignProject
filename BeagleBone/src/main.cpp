@@ -29,6 +29,7 @@ int main()
 
 	// PWM Test
 	cout << "Starting PWM Test..." << endl;
+	
 	while(true)
 	{
 		cout << "Setting to 0..." << endl;
@@ -42,6 +43,14 @@ int main()
 		cout << "==========================" << endl;
 		sleep(2);
 	}
-	
+	/*
+	for(int i = 0; i < 100; ++i)
+	{
+		cout << i << "\%..." << endl;
+		PWMMgr().setPitch(i);
+		PWMMgr().setYaw(i);
+		sleep(2);
+	}
+	*/
 	return 0;
 }

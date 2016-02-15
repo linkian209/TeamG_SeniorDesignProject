@@ -34,11 +34,11 @@ int main()
 	{
 		cout << "Setting to 0..." << endl;
 		PWMMgr().setPitch(0);
-		PWMMgr().setYaw(0);
+		PWMMgr().setYaw(20);
 		cout << "==========================" << endl;
 		sleep(2);
 		cout << "Setting to max..." << endl;
-		PWMMgr().setPitch(180);
+		PWMMgr().setPitch(90);
 		PWMMgr().setYaw(90);
 		cout << "==========================" << endl;
 		sleep(2);

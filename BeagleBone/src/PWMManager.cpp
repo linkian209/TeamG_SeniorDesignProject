@@ -9,12 +9,10 @@ m_yawFB(BlackLib::AIN6)
 {
 	std::cout << "Creating PWMManager.\n";
 	// Set up duty
-	m_pitch.setPeriodTime(1,BlackLib::milisecond);
-	m_yaw.setPeriodTime(1,BlackLib::milisecond);
-	std::cout << "Period of Yaw: " << m_yaw.getPeriodValue() << "ns\n"; 
-	std::cout << "Period of Pitch: " << m_pitch.getPeriodValue() << "ns\n";
-	m_pitch.setPeriodTime(60,BlackLib::microsecond);
-	m_yaw.setPeriodTime(60,BlackLib::microsecond);
+	//m_pitch.setPeriodTime(1,BlackLib::milisecond);
+	//m_yaw.setPeriodTime(1,BlackLib::milisecond);
+	m_pitch.setPeriodTime(20,BlackLib::milisecond);
+	m_yaw.setPeriodTime(20,BlackLib::milisecond);
 	std::cout << "Period of Yaw: " << m_yaw.getPeriodValue() << "ns\n"; 
 	std::cout << "Period of Pitch: " << m_pitch.getPeriodValue() << "ns\n";
 	m_pitch.setPolarity(BlackLib::straight);

@@ -42,9 +42,9 @@ class PWMManager
 		float m_currentPitch 	= 0;	// Current Angle of Pitch
 		float m_currentYaw	= 0;	// Current Angle of Yaw
 		// Duty Cycle Calculation variables
-		float m_dutyMin = 5.44;
-		float m_dutyMax = 24.00;
-		float m_dutySpan = 18.56;
+		float m_dutyMin = 2.00;
+		float m_dutyMax = 9.00;
+		float m_dutySpan = 11.00;
 };
 
 // Declare the friend function

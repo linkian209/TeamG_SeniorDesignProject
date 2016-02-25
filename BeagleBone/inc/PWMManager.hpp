@@ -9,6 +9,10 @@
 #include "BlackPWM.h"
 #include "BlackADC.h"
 
+// Constants
+const int DEFAULT_PITCH = 65;
+const int DEFAULT_YAW = 85;
+
 class PWMManager
 {
 	public:
@@ -45,6 +49,7 @@ class PWMManager
 		float m_dutyMin = 2.00;
 		float m_dutyMax = 9.00;
 		float m_dutySpan = 11.00;
+		float m_yawDefault = 92.5;
 };
 
 // Declare the friend function

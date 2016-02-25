@@ -26,11 +26,15 @@ class BluetoothManager
 
 		// Functions
 		void test();
+		bool sendString
 
 	private:
 		// Constructor and Destructor
 		BluetoothManager();
 		~BluetoothManager();
+
+		// UART Member
+		BlackLib::BlackUART m_UART;
 };
 
 // Declare Singleton Access Function

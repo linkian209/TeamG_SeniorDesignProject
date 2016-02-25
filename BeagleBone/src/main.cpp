@@ -1,5 +1,6 @@
 #include <iostream>
 #include "PWMManager.hpp"
+#include "AttachedCamera.hpp"
 #include "BluetoothManager.hpp"
 #include "UserThread.hpp"
 #include "VideoThread.hpp"
@@ -16,6 +17,10 @@ int main()
 	BTMgr().test();
 	cout << "Done!" << endl;
 
+	cout << "Getting Attached Camera Singleton..." << endl;
+	AttCam().test();
+	cout << "Done!" << endl;
+
 	// Thread Test
 	cout << "Staring Thread Test..." << endl;
 	UserThread testThread;
@@ -30,7 +35,7 @@ int main()
 	// PWM Test
 	cout << "Starting PWM Test..." << endl;
 	
-	while(true)
+	do
 	{
 		cout << "Setting to 0..." << endl;
 		PWMMgr().setPitch(0);
@@ -42,15 +47,10 @@ int main()
 		PWMMgr().setYaw(90);
 		cout << "==========================" << endl;
 		sleep(2);
-	}
-	/*
-	for(int i = 0; i < 100; ++i)
-	{
-		cout << i << "\%..." << endl;
-		PWMMgr().setPitch(i);
-		PWMMgr().setYaw(i);
-		sleep(2);
-	}
-	*/
+	}while(false);
+	
+	// Camera test
+	cout << "Gphoto does " << (AttCam().takePicture() ? "" : "not ") << "work!\n";
+
 	return 0;
 }

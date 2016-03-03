@@ -91,6 +91,11 @@ namespace BlackLib
         delete this->uartErrors;
     }
 
+    int         BlackUART::getFileDescriptor()
+    {
+        return this->uartFD;
+    }
+
 
 
     bool        BlackUART::loadDeviceTree()

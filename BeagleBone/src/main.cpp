@@ -52,5 +52,13 @@ int main()
 	// Camera test
 	cout << "Gphoto does " << (AttCam().takePicture() ? "" : "not ") << "work!\n";
 
+	// UART Test
+	do
+	{
+		cout << (BTMgr().sendString("Yosh!") ? "True!" : "False!") << endl;
+		BTMgr().readString();
+		sleep(1);
+	}while(true);
+
 	return 0;
 }

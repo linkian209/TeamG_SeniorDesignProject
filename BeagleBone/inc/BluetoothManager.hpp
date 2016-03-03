@@ -8,6 +8,7 @@
 
 #include "BlackUART.h"
 #include <mutex>
+#include <string>
 
 class BluetoothManager
 {
@@ -26,7 +27,8 @@ class BluetoothManager
 
 		// Functions
 		void test();
-		bool sendString
+		bool sendString(/*std::string*/char* message);
+		bool readString();
 
 	private:
 		// Constructor and Destructor
@@ -35,6 +37,7 @@ class BluetoothManager
 
 		// UART Member
 		BlackLib::BlackUART m_UART;
+		int m_uartFD = -1;
 };
 
 // Declare Singleton Access Function

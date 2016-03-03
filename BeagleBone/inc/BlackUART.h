@@ -352,6 +352,10 @@ namespace BlackLib
 
 
         public:
+
+	    int getFileDescriptor();
+
+
             /*!
             * This enum is used to define UART debugging flags.
             */

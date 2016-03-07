@@ -2,7 +2,9 @@ package blogsdpteamg.mobilecameracontrol;
 
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothServerSocket;
+import android.bluetooth.BluetoothSocket;
 import android.content.Intent;
 import android.preference.PreferenceFragment;
 import android.support.v7.app.AppCompatActivity;
@@ -47,8 +49,10 @@ public class MainActivity extends AppCompatActivity
     private CharSequence mTitle;
     private DeviceListFragment mDeviceListFragment;
     private BluetoothAdapter BTAdapter;
-    private BluetoothServerSocket BTServer;
+    private BluetoothSocket BTSocket;
+    private BluetoothDevice device;
     private UUID mUUID;
+    private ConnectThread connection;
 
     public static int REQUEST_BLUETOOTH = 1;
 
@@ -166,17 +170,13 @@ public class MainActivity extends AppCompatActivity
     @Override
     public void onFragmentInteraction(String id)
     {
-        BluetoothServerSocket temp = null;
-        /*
-        try
-        {
-           temp = BTAdapter.listenUsingRfcommWithServiceRecord("Titan", mUUID);
-        }
-        catch(IOException e)
-        {
+        BluetoothSocket temp = null;
+        device = BTAdapter.getRemoteDevice(id);
 
-        }
-        */
+        connection = new ConnectThread(device,mUUID);
+        connection.connect();
+
+
     }
 
     // Settings Fragments

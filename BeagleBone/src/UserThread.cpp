@@ -60,7 +60,7 @@ bool UserThread::ThreadMain()
 					continue;
 			}
 			// Create Response
-			std::string ackPack = "$%RESPONSE" + (response ? "TRUE" : "FALSE") + "&";
+			std::string ackPack = "$%RESPONSE%" + (response ? "TRUE" : "FALSE") + "$";
 			// Send packet return packet
 			while(!BTMgr().Lock());
 			// Send it

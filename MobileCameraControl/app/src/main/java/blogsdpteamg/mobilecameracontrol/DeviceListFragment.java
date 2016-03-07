@@ -35,7 +35,7 @@ import java.util.Set;
  */
 public class DeviceListFragment extends Fragment implements AbsListView.OnItemClickListener{
 
-    private ArrayList <DeviceItem>deviceItemList;
+    private static ArrayList <DeviceItem>deviceItemList;
 
     private OnFragmentInteractionListener mListener;
     private static BluetoothAdapter bTAdapter;
@@ -50,6 +50,12 @@ public class DeviceListFragment extends Fragment implements AbsListView.OnItemCl
      * Views.
      */
     private ArrayAdapter<DeviceItem> mAdapter;
+
+    /**
+     * The fragment argument representing the section number for this
+     * fragment.
+     */
+    private static final String ARG_SECTION_NUMBER = "section_number";
 
 
     private final BroadcastReceiver bReciever = new BroadcastReceiver() {
@@ -70,8 +76,11 @@ public class DeviceListFragment extends Fragment implements AbsListView.OnItemCl
 
 
     // TODO: Rename and change types of parameters
-    public static DeviceListFragment newInstance(BluetoothAdapter adapter) {
+    public static DeviceListFragment newInstance(BluetoothAdapter adapter, int sectionNumber) {
         DeviceListFragment fragment = new DeviceListFragment();
+        Bundle args = new Bundle();
+        args.putInt(ARG_SECTION_NUMBER, sectionNumber);
+        fragment.setArguments(args);
         bTAdapter = adapter;
         return fragment;
     }
@@ -89,7 +98,9 @@ public class DeviceListFragment extends Fragment implements AbsListView.OnItemCl
 
 
         Log.d("DEVICELIST", "Super called for DeviceListFragment onCreate\n");
-        deviceItemList = new ArrayList<DeviceItem>();
+        if(deviceItemList == null) {
+            deviceItemList = new ArrayList<DeviceItem>();
+        }
 
         Set<BluetoothDevice> pairedDevices = bTAdapter.getBondedDevices();
         if (pairedDevices.size() > 0) {
@@ -150,6 +161,8 @@ public class DeviceListFragment extends Fragment implements AbsListView.OnItemCl
             throw new ClassCastException(activity.toString()
                     + " must implement OnFragmentInteractionListener");
         }
+        ((MainActivity) activity).onSectionAttached(
+                getArguments().getInt(ARG_SECTION_NUMBER));
     }
 
     @Override
@@ -166,7 +179,7 @@ public class DeviceListFragment extends Fragment implements AbsListView.OnItemCl
         if (null != mListener) {
             // Notify the active callbacks interface (the activity, if the
             // fragment is attached to one) that an item has been selected.
-            mListener.onFragmentInteraction(deviceItemList.get(position).getDeviceName());
+            mListener.onFragmentInteraction(deviceItemList.get(position).getAddress());
         }
 
     }

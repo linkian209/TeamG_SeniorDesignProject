@@ -2,6 +2,7 @@ package blogsdpteamg.mobilecameracontrol;
 
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.BluetoothServerSocket;
 import android.content.Intent;
 import android.preference.PreferenceFragment;
 import android.support.v7.app.AppCompatActivity;
@@ -11,6 +12,7 @@ import android.support.v4.app.FragmentManager;
 import android.content.Context;
 import android.os.Build;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -20,6 +22,14 @@ import android.view.ViewGroup;
 import android.support.v4.widget.DrawerLayout;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
+
+import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.math.BigInteger;
+import java.util.UUID;
+
+import blogsdpteamg.mobilecameracontrol.Connecting.ServerConnectThread;
 import blogsdpteamg.mobilecameracontrol.MainScreenFragment;
 
 
@@ -37,6 +47,8 @@ public class MainActivity extends AppCompatActivity
     private CharSequence mTitle;
     private DeviceListFragment mDeviceListFragment;
     private BluetoothAdapter BTAdapter;
+    private BluetoothServerSocket BTServer;
+    private UUID mUUID;
 
     public static int REQUEST_BLUETOOTH = 1;
 
@@ -56,6 +68,12 @@ public class MainActivity extends AppCompatActivity
 
         // Setup Bluetooth
         BTAdapter = BluetoothAdapter.getDefaultAdapter();
+        String temp = getString(R.string.uuid);
+        String temp2 = temp.replace("-","");
+        mUUID = new UUID(
+                new BigInteger(temp2.substring(0,16),16).longValue(),
+                new BigInteger(temp2.substring(16),16).longValue()
+        );
 
         if(!BTAdapter.isEnabled())
         {
@@ -63,6 +81,7 @@ public class MainActivity extends AppCompatActivity
             startActivityForResult(enableBT,REQUEST_BLUETOOTH);
         }
     }
+
 
     @Override
     public void onNavigationDrawerItemSelected(int position) {
@@ -81,7 +100,13 @@ public class MainActivity extends AppCompatActivity
         }
         else
         {
-            fragmentManager.beginTransaction().replace(R.id.container,mDeviceListFragment).commit();
+            if(mDeviceListFragment == null)
+            {
+                mDeviceListFragment = DeviceListFragment.newInstance(BTAdapter,position + 1);
+            }
+            fragmentManager.beginTransaction()
+                    .replace(R.id.container, mDeviceListFragment)
+                    .commit();
         }
     }
 
@@ -141,7 +166,17 @@ public class MainActivity extends AppCompatActivity
     @Override
     public void onFragmentInteraction(String id)
     {
+        BluetoothServerSocket temp = null;
+        /*
+        try
+        {
+           temp = BTAdapter.listenUsingRfcommWithServiceRecord("Titan", mUUID);
+        }
+        catch(IOException e)
+        {
 
+        }
+        */
     }
 
     // Settings Fragments

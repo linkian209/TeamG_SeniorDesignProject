@@ -853,50 +853,6 @@ namespace BlackLib
             * @sa uartApplyMode
             */
             bool            setBaudRate(baudRate newBaud, direction whichDirection, uartApplyMode applyMode = ApplyNow );
-            
-           /*! @brief Changes baud rate of uart.
-            *
-            * This function changes baud rate of uart at specified direction. Also users can select apply
-            * condition like ApplyNow, ApplyDrain, ApplyFlush.
-            *
-            * @param [in] newBaud         new baud rate value
-            * @param [in] whichDirection  direction
-            * @param [in] applyMode       new value's apply condition
-            * @return true if changing operation is successful, else false.
-            * @warning Before use this function, users must be called open function. If uart is not open,
-            * this function returns false and sets errorUART::baudRateError and errorUART::openError flags.
-            *
-            * @par Example
-            *  @code{.cpp}
-            *
-            *   BlackLib::BlackUART  myUart(BlackLib::UART1,
-            *                               BlackLib::Baud9600,
-            *                               BlackLib::ParityEven,
-            *                               BlackLib::StopOne,
-            *                               BlackLib::Char8 );
-            *
-            *   myUart.open( BlackLib::ReadWrite | BlackLib::NonBlock );
-            *
-            *   // 13 means Baud9600. See the BlackLib::baudRate enums.
-            *   std::cout << "Current baud rate: " << myUart.getBaudRate(BlackLib::output) << std::endl;
-            *
-            *   myUart.setBaudRate(B115200, BlackLib::output, BlackLib::ApplyNow);
-            *
-            * 
-            *   std::cout << "Current baud rate: " << myUart.getBaudRate(BlackLib::output);
-            *
-            * @endcode
-            * @code{.cpp}
-            *   // Possible Output:
-            *   // Current baud rate: 13
-            *   // Current baud rate: 14
-            * @endcode
-            *
-            * @sa baudRate
-            * @sa direction
-            * @sa uartApplyMode
-            */
-            bool            setBaudRate(speed_t newBaud, direction whichDirection, uartApplyMode applyMode = ApplyNow );
 
             /*! @brief Changes parity of uart.
             *

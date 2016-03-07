@@ -1,6 +1,11 @@
 package blogsdpteamg.mobilecameracontrol;
 
 import android.app.Activity;
+import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.BluetoothDevice;
+import android.bluetooth.BluetoothServerSocket;
+import android.bluetooth.BluetoothSocket;
+import android.content.Intent;
 import android.preference.PreferenceFragment;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.app.ActionBar;
@@ -9,6 +14,7 @@ import android.support.v4.app.FragmentManager;
 import android.content.Context;
 import android.os.Build;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -18,11 +24,19 @@ import android.view.ViewGroup;
 import android.support.v4.widget.DrawerLayout;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
+
+import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.math.BigInteger;
+import java.util.UUID;
+
+import blogsdpteamg.mobilecameracontrol.Connecting.ServerConnectThread;
 import blogsdpteamg.mobilecameracontrol.MainScreenFragment;
 
 
 public class MainActivity extends AppCompatActivity
-        implements NavigationDrawerFragment.NavigationDrawerCallbacks {
+        implements NavigationDrawerFragment.NavigationDrawerCallbacks, DeviceListFragment.OnFragmentInteractionListener {
 
     /**
      * Fragment managing the behaviors, interactions and presentation of the navigation drawer.
@@ -33,6 +47,14 @@ public class MainActivity extends AppCompatActivity
      * Used to store the last screen title. For use in {@link #restoreActionBar()}.
      */
     private CharSequence mTitle;
+    private DeviceListFragment mDeviceListFragment;
+    private BluetoothAdapter BTAdapter;
+    private BluetoothSocket BTSocket;
+    private BluetoothDevice device;
+    private UUID mUUID;
+    private ConnectThread connection;
+
+    public static int REQUEST_BLUETOOTH = 1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,21 +69,47 @@ public class MainActivity extends AppCompatActivity
         mNavigationDrawerFragment.setUp(
                 R.id.navigation_drawer,
                 (DrawerLayout) findViewById(R.id.drawer_layout));
+
+        // Setup Bluetooth
+        BTAdapter = BluetoothAdapter.getDefaultAdapter();
+        String temp = getString(R.string.uuid);
+        String temp2 = temp.replace("-","");
+        mUUID = new UUID(
+                new BigInteger(temp2.substring(0,16),16).longValue(),
+                new BigInteger(temp2.substring(16),16).longValue()
+        );
+
+        if(!BTAdapter.isEnabled())
+        {
+            Intent enableBT = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+            startActivityForResult(enableBT,REQUEST_BLUETOOTH);
+        }
     }
+
 
     @Override
     public void onNavigationDrawerItemSelected(int position) {
         // update the main content by replacing fragments
         FragmentManager fragmentManager = getSupportFragmentManager();
-        if(position != 0) {
+        if(position == 2) {
             fragmentManager.beginTransaction()
                     .replace(R.id.container, PlaceholderFragment.newInstance(position + 1))
                     .commit();
         }
-        else
+        else if(position == 0)
         {
             fragmentManager.beginTransaction()
                     .replace(R.id.container, MainScreenFragment.newInstance(position + 1))
+                    .commit();
+        }
+        else
+        {
+            if(mDeviceListFragment == null)
+            {
+                mDeviceListFragment = DeviceListFragment.newInstance(BTAdapter,position + 1);
+            }
+            fragmentManager.beginTransaction()
+                    .replace(R.id.container, mDeviceListFragment)
                     .commit();
         }
     }
@@ -117,6 +165,18 @@ public class MainActivity extends AppCompatActivity
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onFragmentInteraction(String id)
+    {
+        BluetoothSocket temp = null;
+        device = BTAdapter.getRemoteDevice(id);
+
+        connection = new ConnectThread(device,mUUID);
+        connection.connect();
+
+
     }
 
     // Settings Fragments

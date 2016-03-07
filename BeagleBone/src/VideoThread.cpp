@@ -42,3 +42,8 @@ bool VideoThread::ThreadMain()
 
 	return true;
 }
+
+bool VideoThread::isStopped()
+{
+	return m_stopThread;
+}

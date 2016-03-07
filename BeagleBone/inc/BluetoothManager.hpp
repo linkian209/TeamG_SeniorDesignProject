@@ -7,8 +7,10 @@
 #define BLUETOOTHMANAGER__HPP
 
 #include "BlackUART.h"
+#include <queue>
 #include <mutex>
 #include <string>
+#include <thread>
 
 class BluetoothManager
 {
@@ -27,8 +29,13 @@ class BluetoothManager
 
 		// Functions
 		void test();
-		bool sendString(/*std::string*/char* message);
-		bool readString();
+		bool sendString(char* message);
+		std::string readString();
+
+		// Thread Functions
+		void startThread();
+		void stopThread();
+		bool ThreadMain();
 
 	private:
 		// Constructor and Destructor
@@ -38,6 +45,13 @@ class BluetoothManager
 		// UART Member
 		BlackLib::BlackUART m_UART;
 		int m_uartFD = -1;
+
+		// Queue of Packets and thread to fill it
+		std::queue<std::string> packets;
+		bool m_newPackets = false;
+		bool checkPackets();
+		std::thread m_thread;
+		bool m_stopThread = false;
 };
 
 // Declare Singleton Access Function

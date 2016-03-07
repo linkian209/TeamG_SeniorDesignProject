@@ -4,41 +4,81 @@
 
 BluetoothManager::BluetoothManager():
 m_UART(BlackLib::UART5) , 
-m_uartFD(m_UART.getFileDescriptor())
+m_uartFD(m_UART.getFileDescriptor()),
+packets(),
+m_thread()
 {
+	// UART Setup
 	m_UART.open(BlackLib::ReadWrite | BlackLib::NonBlock);
-	//m_UART.setBaudRate(BlackLib::Baud115200,BlackLib::output,BlackLib::ApplyNow);
-	//m_UART.setBaudRate(BlackLib::Baud115200,BlackLib::input,BlackLib::ApplyNow);
-
-	// Set Baud Rate
-	//termios tempProps;
-	//tcgetattr(m_uartFD,&tempProps);
-	//cfsetispeed(&tempProps, B115200);
-	//cfsetospeed(&tempProps, B115200);
-	//tcsetattr(m_uartFD, TCSANOW, &tempProps);
 	m_UART.flush(BlackLib::bothDirection);
+	// Thread Startup
+	startThread();
 }
 
 BluetoothManager::~BluetoothManager()
 {
-
+	// Stop Thread
+	stopThread();
 }
 
 void BluetoothManager::test()
 {
-	//std::cout << "Test Complete!\n";
 	std::cout << m_UART.getPortName() << std::endl;
 }
 
-bool BluetoothManager::sendString(/*std::string*/char* message)
+bool BluetoothManager::sendString(char* message)
 {
 	return m_UART.write(message, sizeof(message));
 }
 
-bool BluetoothManager::readString()
+std::string BluetoothManager::readString()
 {
-	char buff[10];
-	while(!m_UART.read(buff,sizeof(buff)));
-	std::cout << buff << std::endl;
-	m_UART.flush(BlackLib::bothDirection);
+	if(!packets.empty())
+	{
+		std::string retval = packets.front();
+		packets.pop();
+		if(packets.empty() && m_newPackets)
+		{
+			m_newPackets = false;
+		}
+		return retval;
+	}
+
+	return "";
+}
+
+void BluetoothManager::startThread()
+{
+	m_thread = std::thread(&BluetoothManager::ThreadMain,this);
+}
+
+void BluetoothManager::stopThread()
+{
+	m_stopThread = true;
+	if(m_thread.joinable())
+	{
+		m_thread.join();
+	}
+}
+
+bool BluetoothManager::ThreadMain()
+{
+	std::cout << "Reading UART line...\n";
+	while(!m_stopThread)
+	{
+		std::string temp = m_UART.read();
+		if(temp != BlackLib::UART_READ_FAILED)
+		{
+			packets.push(temp);
+			if(!m_newPackets)
+			{
+				m_newPackets = true;
+			}
+		}
+	}
+}
+
+bool BluetoothManager::checkPackets()
+{
+	return m_newPackets;
 }

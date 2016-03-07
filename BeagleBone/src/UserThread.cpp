@@ -34,18 +34,76 @@ bool UserThread::ThreadMain()
 	while(!m_stopThread)
 	{
 		// Wait for a new packet
+		while(!BTMgr().checkPackets());
 
-		// Decode Packet
+		while(BTMgr().checkPackets())
+		{
+			// Decode Packet
+			std::string pack = BTMgr().readString();
+			PacketType type = decodePacket(pack);
 
-		// Do packet thing
-
-		// Create Response
-
-		// Send packet
-		while(!BTMgr().Lock());
-		// Send it
-		BTMgr().Unlock();
+			switch(type)
+			{
+				case PWMPacket:
+					decodePWMPacket(pack);
+					break;
+				case CameraPacket:
+					decodeCameraPacket(pack);
+					break;
+				case BadPacket:
+					// Ignore this Packet
+					continue;
+				default:
+					// What????
+					continue;
+			}
+			// Create Response
+			
+			// Send packet
+			while(!BTMgr().Lock());
+			// Send it
+			BTMgr().Unlock();
+		}
 	}
 
 	return true;
+}
+
+bool UserThread::isStopped()
+{
+	return m_stopThread;
+}
+
+PacketType UserThread::decodePacket(std::string packet)
+{
+	std::size_t found = packet.find("%PWM");
+
+	// PWM Packet
+	if(found != std::string::npos)
+	{
+		return PacketType::PWMPacket;
+	}
+
+	found = packet.find("%CAMERA");
+
+	// Camera Packet
+	if(found != std::string:npos)
+	{
+		return PacketType::CameraPacket;
+	}
+
+	// Else return bad packet
+	return PacketType::BadPacket;
+}
+
+bool UserThread::decodePWMPacket(std::string packet)
+{
+	std::size_t pitch = packet.find("%PITCH");
+
+	if(
+}
+
+bool UserThread::decodeCameraPacket(std::string packet)
+{
+
 }

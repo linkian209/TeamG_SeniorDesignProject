@@ -1,6 +1,8 @@
 package blogsdpteamg.mobilecameracontrol;
 
 import android.app.Activity;
+import android.bluetooth.BluetoothAdapter;
+import android.content.Intent;
 import android.preference.PreferenceFragment;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.app.ActionBar;
@@ -22,7 +24,7 @@ import blogsdpteamg.mobilecameracontrol.MainScreenFragment;
 
 
 public class MainActivity extends AppCompatActivity
-        implements NavigationDrawerFragment.NavigationDrawerCallbacks {
+        implements NavigationDrawerFragment.NavigationDrawerCallbacks, DeviceListFragment.OnFragmentInteractionListener {
 
     /**
      * Fragment managing the behaviors, interactions and presentation of the navigation drawer.
@@ -33,6 +35,10 @@ public class MainActivity extends AppCompatActivity
      * Used to store the last screen title. For use in {@link #restoreActionBar()}.
      */
     private CharSequence mTitle;
+    private DeviceListFragment mDeviceListFragment;
+    private BluetoothAdapter BTAdapter;
+
+    public static int REQUEST_BLUETOOTH = 1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,22 +53,35 @@ public class MainActivity extends AppCompatActivity
         mNavigationDrawerFragment.setUp(
                 R.id.navigation_drawer,
                 (DrawerLayout) findViewById(R.id.drawer_layout));
+
+        // Setup Bluetooth
+        BTAdapter = BluetoothAdapter.getDefaultAdapter();
+
+        if(!BTAdapter.isEnabled())
+        {
+            Intent enableBT = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+            startActivityForResult(enableBT,REQUEST_BLUETOOTH);
+        }
     }
 
     @Override
     public void onNavigationDrawerItemSelected(int position) {
         // update the main content by replacing fragments
         FragmentManager fragmentManager = getSupportFragmentManager();
-        if(position != 0) {
+        if(position == 2) {
             fragmentManager.beginTransaction()
                     .replace(R.id.container, PlaceholderFragment.newInstance(position + 1))
                     .commit();
         }
-        else
+        else if(position == 0)
         {
             fragmentManager.beginTransaction()
                     .replace(R.id.container, MainScreenFragment.newInstance(position + 1))
                     .commit();
+        }
+        else
+        {
+            fragmentManager.beginTransaction().replace(R.id.container,mDeviceListFragment).commit();
         }
     }
 
@@ -117,6 +136,12 @@ public class MainActivity extends AppCompatActivity
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onFragmentInteraction(String id)
+    {
+
     }
 
     // Settings Fragments

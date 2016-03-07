@@ -11,6 +11,12 @@
     <string name="action_settings">Settings</string>
     <!-- Strings related to Settings -->
 
+    <!-- Strings for Bluetooth -->
+    <string name="button_connect">Connect</string>
+    <string name="button_disconnect">Disconnect</string>
+    <string name="title_devices">Devices</string>
+    <string name="scan">Scan</string>
+    <string name="stopScan">Stop Scanning</string>
 
     <!-- Example General settings -->
     <string name="pref_header_general">General</string>

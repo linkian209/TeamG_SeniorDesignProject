@@ -76,6 +76,8 @@ bool BluetoothManager::ThreadMain()
 			}
 		}
 	}
+	
+	return true;
 }
 
 bool BluetoothManager::checkPackets()

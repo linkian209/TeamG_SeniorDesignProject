@@ -23,6 +23,7 @@ class UserThread
 		void startThread();
 		void stopThread();
 		bool ThreadMain();
+		bool isStopped();
 };
 
 #endif

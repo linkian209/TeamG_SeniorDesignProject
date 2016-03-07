@@ -9,29 +9,17 @@ using namespace std;
 
 int main()
 {
-	cout << "Getting PWM Singleton..." << endl;
+	// Initialize Singletons
 	PWMMgr().test();
-	cout << "Done!" << endl;
-
-	cout << "Getting Bluetooth Singleton..." << endl;
 	BTMgr().test();
-	cout << "Done!" << endl;
-
-	cout << "Getting Attached Camera Singleton..." << endl;
 	AttCam().test();
-	cout << "Done!" << endl;
-
-	// Thread Test
-	cout << "Staring Thread Test..." << endl;
-	UserThread testThread;
-	VideoThread testThread2;
+	
+	// Initialize Threads
+	UserThread userThread;
+	VideoThread videoThread;
 	testThread.startThread();
 	testThread2.startThread();
-	sleep(10);
-	testThread.stopThread();
-	testThread2.stopThread();
-	cout << "Thread Test End!" << endl;
-
+	
 	// PWM Test
 	cout << "Starting PWM Test..." << endl;
 	

@@ -7,14 +7,15 @@ m_UART(BlackLib::UART5) ,
 m_uartFD(m_UART.getFileDescriptor())
 {
 	m_UART.open(BlackLib::ReadWrite | BlackLib::NonBlock);
-	m_UART.setBaudRate(B115200,BlackLib::output,BlackLib::ApplyNow);
-	m_UART.setBaudRate(B115200,BlackLib::input,BlackLib::ApplyNow);
-	
+	//m_UART.setBaudRate(BlackLib::Baud115200,BlackLib::output,BlackLib::ApplyNow);
+	//m_UART.setBaudRate(BlackLib::Baud115200,BlackLib::input,BlackLib::ApplyNow);
+
 	// Set Baud Rate
-	termios tempProps;
-	tcgetattr(m_uartFD,&tempProps);
-	cfsetispeed(&tempProps, B115200);
-	cfsetospeed(&tempProps, B115200);
+	//termios tempProps;
+	//tcgetattr(m_uartFD,&tempProps);
+	//cfsetispeed(&tempProps, B115200);
+	//cfsetospeed(&tempProps, B115200);
+	//tcsetattr(m_uartFD, TCSANOW, &tempProps);
 	m_UART.flush(BlackLib::bothDirection);
 }
 

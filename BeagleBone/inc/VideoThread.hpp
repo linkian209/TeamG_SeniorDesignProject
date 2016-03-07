@@ -23,6 +23,7 @@ class VideoThread
 		void startThread();
 		void stopThread();
 		bool ThreadMain();
+		bool isStopped();
 };
 
 #endif

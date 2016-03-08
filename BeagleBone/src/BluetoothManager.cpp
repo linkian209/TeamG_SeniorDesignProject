@@ -11,6 +11,9 @@ m_thread()
 	// UART Setup
 	m_UART.open(BlackLib::ReadWrite | BlackLib::NonBlock);
 	m_UART.flush(BlackLib::bothDirection);
+	std::cout << m_UART.getReadBufferSize() << std::endl;
+	m_UART.setReadBufferSize(2048);
+	std::cout << m_UART.getReadBufferSize() << std::endl;	
 	// Thread Startup
 	startThread();
 }
@@ -26,9 +29,9 @@ void BluetoothManager::test()
 	std::cout << m_UART.getPortName() << std::endl;
 }
 
-bool BluetoothManager::sendString(char* message)
+bool BluetoothManager::sendString(std::string message)
 {
-	return m_UART.write(message, sizeof(message));
+	return m_UART.write(const_cast<char*>(message.c_str()), sizeof(message.c_str()));
 }
 
 std::string BluetoothManager::readString()
@@ -69,6 +72,7 @@ bool BluetoothManager::ThreadMain()
 		std::string temp = m_UART.read();
 		if(temp != BlackLib::UART_READ_FAILED)
 		{
+			std::cout << temp << std::endl;
 			packets.push(temp);
 			if(!m_newPackets)
 			{

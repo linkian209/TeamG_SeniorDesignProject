@@ -29,8 +29,10 @@ class BluetoothManager
 
 		// Functions
 		void test();
-		bool sendString(char* message);
+		bool sendString(std::string message);
 		std::string readString();
+		bool checkPackets();
+
 
 		// Thread Functions
 		void startThread();
@@ -49,7 +51,6 @@ class BluetoothManager
 		// Queue of Packets and thread to fill it
 		std::queue<std::string> packets;
 		bool m_newPackets = false;
-		bool checkPackets();
 		std::thread m_thread;
 		bool m_stopThread = false;
 };

@@ -56,14 +56,4 @@
         android:nextFocusLeft="@+id/buttonRight"
         android:nextFocusRight="@+id/buttonLeft"
         android:nextFocusDown="@+id/buttonLeft" />
-
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Capture Image"
-        android:id="@+id/buttonCapture"
-        android:layout_below="@+id/buttonDown"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="84dp" />
-
 </RelativeLayout>

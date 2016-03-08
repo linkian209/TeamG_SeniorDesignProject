@@ -1,7 +1,6 @@
 package blogsdpteamg.mobilecameracontrol;
 
 import android.app.Activity;
-import android.app.ListFragment;
 import android.bluetooth.BluetoothDevice;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -52,7 +51,7 @@ public class BluetoothFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View rootView = inflater.inflate(R.layout.main_screen, container, false);
+        View rootView = inflater.inflate(R.layout.fragment_placeholder, container, false);
         return rootView;
     }
 

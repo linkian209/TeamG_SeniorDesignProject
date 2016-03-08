@@ -17,7 +17,7 @@
     <string name="title_devices">Devices</string>
     <string name="scan">Scan</string>
     <string name="stopScan">Stop Scanning</string>
-    <string name="uuid">12341234-0000-1000-8000-00805F9B34FB</string>
+    <string name="uuid">00001101-0000-1000-8000-00805F9B34FB</string>
 
     <!-- Example General settings -->
     <string name="pref_header_general">General</string>

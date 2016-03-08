@@ -6,6 +6,9 @@ import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothServerSocket;
 import android.bluetooth.BluetoothSocket;
 import android.content.Intent;
+import android.content.res.Configuration;
+import android.os.Looper;
+import android.os.Message;
 import android.preference.PreferenceFragment;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.app.ActionBar;
@@ -29,14 +32,19 @@ import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.math.BigInteger;
+import java.util.Queue;
 import java.util.UUID;
+import java.util.logging.Handler;
+import java.util.logging.LogRecord;
 
 import blogsdpteamg.mobilecameracontrol.Connecting.ServerConnectThread;
 import blogsdpteamg.mobilecameracontrol.MainScreenFragment;
 
 
 public class MainActivity extends AppCompatActivity
-        implements NavigationDrawerFragment.NavigationDrawerCallbacks, DeviceListFragment.OnFragmentInteractionListener {
+        implements NavigationDrawerFragment.NavigationDrawerCallbacks,
+        DeviceListFragment.OnFragmentInteractionListener,
+        MainScreenFragment.OnFragmentInteractionListener{
 
     /**
      * Fragment managing the behaviors, interactions and presentation of the navigation drawer.
@@ -47,12 +55,32 @@ public class MainActivity extends AppCompatActivity
      * Used to store the last screen title. For use in {@link #restoreActionBar()}.
      */
     private CharSequence mTitle;
+
+    /**
+     * Bluetooth Stuff
+     */
     private DeviceListFragment mDeviceListFragment;
     private BluetoothAdapter BTAdapter;
     private BluetoothSocket BTSocket;
     private BluetoothDevice device;
     private UUID mUUID;
     private ConnectThread connection;
+    private Queue<String> packets;
+    public static int MESSAGE_READ = 2;
+
+    /**
+     * Servo Angles and degree steps
+     */
+    private float pitch;
+    private float yaw;
+    private float pitchStep;
+    private float yawStep;
+
+    /**
+     * Message Handler
+     */
+    //private static Handler mHandler;
+
 
     public static int REQUEST_BLUETOOTH = 1;
 
@@ -60,6 +88,7 @@ public class MainActivity extends AppCompatActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
 
         mNavigationDrawerFragment = (NavigationDrawerFragment)
                 getSupportFragmentManager().findFragmentById(R.id.navigation_drawer);
@@ -71,9 +100,10 @@ public class MainActivity extends AppCompatActivity
                 (DrawerLayout) findViewById(R.id.drawer_layout));
 
         // Setup Bluetooth
+        connection = null;
         BTAdapter = BluetoothAdapter.getDefaultAdapter();
         String temp = getString(R.string.uuid);
-        String temp2 = temp.replace("-","");
+        String temp2 = temp.replace("-", "");
         mUUID = new UUID(
                 new BigInteger(temp2.substring(0,16),16).longValue(),
                 new BigInteger(temp2.substring(16),16).longValue()
@@ -82,8 +112,14 @@ public class MainActivity extends AppCompatActivity
         if(!BTAdapter.isEnabled())
         {
             Intent enableBT = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-            startActivityForResult(enableBT,REQUEST_BLUETOOTH);
+            startActivityForResult(enableBT, REQUEST_BLUETOOTH);
         }
+
+        // Setup Servo controls
+        pitch = (float) 65.0;
+        yaw = (float) 85.0;
+        pitchStep = (float) 2.5;
+        yawStep = (float) 2.5;
     }
 
 
@@ -167,22 +203,73 @@ public class MainActivity extends AppCompatActivity
         return super.onOptionsItemSelected(item);
     }
 
+    /**
+     * Bluetooth Fragment Interface Functions
+     */
     @Override
     public void onFragmentInteraction(String id)
     {
-        BluetoothSocket temp = null;
         device = BTAdapter.getRemoteDevice(id);
 
         connection = new ConnectThread(device,mUUID);
         connection.connect();
-
-
     }
 
-    // Settings Fragments
+    @Override
+    public BluetoothAdapter updateBluetooth()
+    {
+        return BTAdapter;
+    }
 
-    // Main Screen Fragment
+    /**
+     * Main Screen Interface Functions
+     */
+    @Override
+    public void onButtonClick(String id)
+    {
+        if(connection != null) {
 
+            if (connection.isConnected()) {
+                // Format Packet
+                String packet = "$";
+
+                switch (id) {
+                    case "UP":
+                        float newPitchUp = pitch + pitchStep;
+                        packet += "%PWM%PITCH" + String.valueOf(newPitchUp) + "%YAW" + String.valueOf(yaw) + "$";
+                        Log.d("Bluetooth", "Sending packet[" + packet + "]\n");
+                        connection.write(packet.getBytes());
+                        break;
+                    case "DOWN":
+                        float newPitchDown = pitch - pitchStep;
+                        packet += "%PWM%PITCH" + String.valueOf(newPitchDown) + "%YAW" + String.valueOf(yaw) + "$";
+                        Log.d("Bluetooth", "Sending packet[" + packet + "]\n");
+                        connection.write(packet.getBytes());
+                        break;
+                    case "LEFT":
+                        float newYawLeft = yaw - yawStep;
+                        packet += "%PWM%PITCH" + String.valueOf(pitch) + "%YAW" + String.valueOf(newYawLeft) + "$";
+                        Log.d("Bluetooth", "Sending packet[" + packet + "]\n");
+                        connection.write(packet.getBytes());
+                        break;
+                    case "RIGHT":
+                        float newYawRight = yaw + yawStep;
+                        packet += "%PWM%PITCH" + String.valueOf(pitch) + "%YAW" + String.valueOf(newYawRight) + "$";
+                        Log.d("Bluetooth", "Sending packet[" + packet + "]\n");
+                        connection.write(packet.getBytes());
+                        break;
+                    case "CAPTURE":
+                        packet += "%CAMERA%DOWNLOAD" + String.valueOf(false) + "$";
+                        Log.d("Bluetooth", "Sending packet[" + packet + "]\n");
+                        connection.write(packet.getBytes());
+                        break;
+                    default:
+                        // Should not have this
+                        break;
+                }
+            }
+        }
+    }
 
     /**
      * A placeholder fragment containing a simple view.
@@ -212,7 +299,7 @@ public class MainActivity extends AppCompatActivity
         @Override
         public View onCreateView(LayoutInflater inflater, ViewGroup container,
                                  Bundle savedInstanceState) {
-            View rootView = inflater.inflate(R.layout.fragment_main, container, false);
+            View rootView = inflater.inflate(R.layout.fragment_placeholder, container, false);
             return rootView;
         }
 

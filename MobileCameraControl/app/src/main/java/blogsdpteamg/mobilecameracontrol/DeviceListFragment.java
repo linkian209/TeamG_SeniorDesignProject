@@ -7,6 +7,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.res.Configuration;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.util.Log;
@@ -96,17 +97,29 @@ public class DeviceListFragment extends Fragment implements AbsListView.OnItemCl
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        Set<BluetoothDevice> pairedDevices;
 
         Log.d("DEVICELIST", "Super called for DeviceListFragment onCreate\n");
         if(deviceItemList == null) {
             deviceItemList = new ArrayList<DeviceItem>();
         }
 
-        Set<BluetoothDevice> pairedDevices = bTAdapter.getBondedDevices();
+        if(bTAdapter != null)
+        {
+            pairedDevices = bTAdapter.getBondedDevices();
+        }
+        else
+        {
+            bTAdapter = mListener.updateBluetooth();
+            pairedDevices = bTAdapter.getBondedDevices();
+        }
+
         if (pairedDevices.size() > 0) {
             for (BluetoothDevice device : pairedDevices) {
                 DeviceItem newDevice= new DeviceItem(device.getName(),device.getAddress(),"false");
-                deviceItemList.add(newDevice);
+                if(deviceItemList.contains(newDevice)) {
+                    deviceItemList.add(newDevice);
+                }
             }
         }
 
@@ -120,7 +133,6 @@ public class DeviceListFragment extends Fragment implements AbsListView.OnItemCl
         mAdapter = new DeviceListAdapter(getActivity(), deviceItemList, bTAdapter);
 
         Log.d("DEVICELIST", "Adapter created\n");
-
     }
 
     @Override
@@ -210,6 +222,7 @@ public class DeviceListFragment extends Fragment implements AbsListView.OnItemCl
     public interface OnFragmentInteractionListener {
         // TODO: Update argument type and name
         public void onFragmentInteraction(String id);
+        public BluetoothAdapter updateBluetooth();
     }
 
 }

@@ -118,8 +118,8 @@ public class MainActivity extends AppCompatActivity
         // Setup Servo controls
         pitch = (float) 65.0;
         yaw = (float) 85.0;
-        pitchStep = (float) 2.5;
-        yawStep = (float) 2.5;
+        pitchStep = (float) 5.0;
+        yawStep = (float) 5.0;
     }
 
 
@@ -236,30 +236,34 @@ public class MainActivity extends AppCompatActivity
                 switch (id) {
                     case "UP":
                         float newPitchUp = pitch + pitchStep;
-                        packet += "%PWM%PITCH" + String.valueOf(newPitchUp) + "%YAW" + String.valueOf(yaw) + "$";
+                        packet += "%PWM%PITCH" + String.valueOf(newPitchUp) + "%YAW" + String.valueOf(yaw) + "$\n";
                         Log.d("Bluetooth", "Sending packet[" + packet + "]\n");
                         connection.write(packet.getBytes());
+                        pitch = newPitchUp;
                         break;
                     case "DOWN":
                         float newPitchDown = pitch - pitchStep;
-                        packet += "%PWM%PITCH" + String.valueOf(newPitchDown) + "%YAW" + String.valueOf(yaw) + "$";
+                        packet += "%PWM%PITCH" + String.valueOf(newPitchDown) + "%YAW" + String.valueOf(yaw) + "$\n";
                         Log.d("Bluetooth", "Sending packet[" + packet + "]\n");
                         connection.write(packet.getBytes());
+                        pitch = newPitchDown;
                         break;
                     case "LEFT":
                         float newYawLeft = yaw - yawStep;
-                        packet += "%PWM%PITCH" + String.valueOf(pitch) + "%YAW" + String.valueOf(newYawLeft) + "$";
+                        packet += "%PWM%PITCH" + String.valueOf(pitch) + "%YAW" + String.valueOf(newYawLeft) + "$\n";
                         Log.d("Bluetooth", "Sending packet[" + packet + "]\n");
                         connection.write(packet.getBytes());
+                        yaw = newYawLeft;
                         break;
                     case "RIGHT":
                         float newYawRight = yaw + yawStep;
-                        packet += "%PWM%PITCH" + String.valueOf(pitch) + "%YAW" + String.valueOf(newYawRight) + "$";
+                        packet += "%PWM%PITCH" + String.valueOf(pitch) + "%YAW" + String.valueOf(newYawRight) + "$\n";
                         Log.d("Bluetooth", "Sending packet[" + packet + "]\n");
                         connection.write(packet.getBytes());
+                        yaw = newYawRight;
                         break;
                     case "CAPTURE":
-                        packet += "%CAMERA%DOWNLOAD" + String.valueOf(false) + "$";
+                        packet += "%CAMERA%DOWNLOAD" + String.valueOf(0) + "$\n";
                         Log.d("Bluetooth", "Sending packet[" + packet + "]\n");
                         connection.write(packet.getBytes());
                         break;

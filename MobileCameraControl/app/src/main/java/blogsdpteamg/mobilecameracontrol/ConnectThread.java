@@ -2,6 +2,7 @@ package blogsdpteamg.mobilecameracontrol;
 
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
+import android.os.Handler;
 import android.util.Log;
 
 import java.io.IOException;
@@ -15,12 +16,16 @@ public class ConnectThread extends Thread{
     private final BluetoothSocket bTSocket;
     private final InputStream inputStream;
     private final OutputStream outputStream;
+    private final Handler mHandler;
 
-    public ConnectThread(BluetoothDevice bTDevice, UUID UUID) {
+    private int MESSAGE_READ = 2;
+
+    public ConnectThread(BluetoothDevice bTDevice, UUID UUID, Handler m_Handler) {
         // First Create Socket and null the streams
         BluetoothSocket tmp = null;
         InputStream tempIn = null;
         OutputStream tempOut = null;
+        mHandler = m_Handler;
         this.bTDevice = bTDevice;
 
         try {
@@ -83,11 +88,14 @@ public class ConnectThread extends Thread{
                 // Read bytes
                 bytes = inputStream.read(buffer);
                 // Send bytes to main activity
-
+                String temp = new String(buffer);
+                Log.d("Thread","Received: ["+temp+"]");
+                mHandler.obtainMessage(MESSAGE_READ,bytes,-1,buffer)
+                .sendToTarget();
             }
             catch (IOException e)
             {
-
+                break;
             }
         }
     }

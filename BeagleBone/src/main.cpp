@@ -14,6 +14,13 @@ int main()
 	BTMgr().test();
 	AttCam().test();
 
+	// Test Sending Packets
+	while(true)
+	{
+		cout << BTMgr().sendString("Hello World!$") << endl;
+		sleep(1);
+	}
+
 	// Initialize Threads
 	UserThread userThread;
 	VideoThread videoThread;

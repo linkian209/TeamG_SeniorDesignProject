@@ -1,4 +1,5 @@
 #include "AttachedCamera.hpp"
+#include "BluetoothManager.hpp"
 
 AttachedCamera::AttachedCamera()
 {
@@ -17,11 +18,21 @@ void AttachedCamera::test()
 
 bool AttachedCamera::takePicture()
 {
-	int ret = system("gphoto2 --capture-image");
+	// Take the picture
+	std::string cmd = "gphoto2 --capture-image-and-download --filename \'capture.jpg\' --keep";
+
+	int ret = system(cmd.c_str());
 	if(ret != 0)
 	{
 		return false;
 	}
 
-	return true;
+	// Send picture to app
+	while(!BTMgr().Lock());
+	bool retval = BTMgr().sendPicture();
+	BTMgr().Unlock();
+
+	system("rm capture.jpg");
+
+	return retval;
 }

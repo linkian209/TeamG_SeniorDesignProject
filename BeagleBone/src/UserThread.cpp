@@ -64,7 +64,7 @@ bool UserThread::ThreadMain()
 			// Create Response
 			std::string ackPack = "$%RESPONSE%";
 			ackPack +=  response ? "TRUE" : "FALSE";
-			ackPack += "$";
+			ackPack += "$\n";
 			// Send packet return packet
 			while(!BTMgr().Lock());
 			// Send it
@@ -174,14 +174,14 @@ bool UserThread::decodeCameraPacket(std::string packet)
 	std::size_t down = packet.find("%DOWNLOAD");
 	bool download = false;
 	bool retval = true;
-	
+
 	if(down != std::string::npos)
 	{
 		std::string temp = packet.substr(down + 8, 1);
-		
+
 		download = (temp == "1") ? true : false;
 	}
-	
+
 	if(download)
 	{
 		// Capture and Download

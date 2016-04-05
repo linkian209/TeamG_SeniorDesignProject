@@ -30,6 +30,7 @@ class BluetoothManager
 		// Functions
 		void test();
 		bool sendString(std::string message);
+		bool sendPicture();
 		std::string readString();
 		bool checkPackets();
 
@@ -53,6 +54,7 @@ class BluetoothManager
 		bool m_newPackets = false;
 		std::thread m_thread;
 		bool m_stopThread = false;
+		int m_acked = 0;
 };
 
 // Declare Singleton Access Function

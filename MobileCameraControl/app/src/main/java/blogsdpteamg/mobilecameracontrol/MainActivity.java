@@ -88,7 +88,11 @@ public class MainActivity extends AppCompatActivity
         public void handleMessage(Message msg)
         {
             String temp = new String((byte[])msg.obj);
-            Log.d("Packet Received",temp);
+            if(temp.contains("PICTURE"))
+            {
+                String numPackets = temp.split("S")[1].split("$")[0];
+                Log.d("Picture incoming",numPackets);
+            }
             addMessage(temp);
         }
     };
@@ -97,6 +101,7 @@ public class MainActivity extends AppCompatActivity
 
     public void addMessage(String msg)
     {
+        Log.d("Packet Received",msg);
         packets.add(msg);
     }
 

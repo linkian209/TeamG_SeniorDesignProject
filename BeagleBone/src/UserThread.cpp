@@ -64,7 +64,7 @@ bool UserThread::ThreadMain()
 			// Create Response
 			std::string ackPack = "$%RESPONSE%";
 			ackPack +=  response ? "TRUE" : "FALSE";
-			ackPack += "$\n";
+			ackPack += "#\n";
 			// Send packet return packet
 			while(!BTMgr().Lock());
 			// Send it
@@ -82,7 +82,7 @@ bool UserThread::isStopped()
 }
 
 // Packets look like this:
-// $[TYPE][DATA......]$
+// $[TYPE][DATA......]#
 // They start and end with '$'
 PacketType UserThread::decodePacket(std::string packet)
 {
@@ -177,7 +177,7 @@ bool UserThread::decodeCameraPacket(std::string packet)
 
 	if(down != std::string::npos)
 	{
-		std::string temp = packet.substr(down + 8, 1);
+		std::string temp = packet.substr(down + 9, 1);
 
 		download = (temp == "1") ? true : false;
 	}
@@ -185,6 +185,10 @@ bool UserThread::decodeCameraPacket(std::string packet)
 	if(download)
 	{
 		// Capture and Download
+		while(!AttCam().Lock());
+		retval = AttCam().takePictureAndDownload();
+		AttCam().Unlock();
+		
 	}
 	else
 	{

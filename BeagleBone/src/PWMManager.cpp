@@ -4,7 +4,7 @@
 #include <thread>
 
 PWMManager::PWMManager() :
-m_pitch(BlackLib::P8_13),
+m_pitch(BlackLib::P9_14),
 m_yaw(BlackLib::P9_22),
 m_pitchFB(BlackLib::AIN4),
 m_yawFB(BlackLib::AIN6)

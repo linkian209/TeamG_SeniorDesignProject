@@ -9,7 +9,9 @@ import android.content.Intent;
 import android.content.res.Configuration;
 import android.os.Looper;
 import android.os.Message;
+import android.os.Handler;
 import android.preference.PreferenceFragment;
+import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.app.ActionBar;
 import android.support.v4.app.Fragment;
@@ -32,9 +34,11 @@ import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.math.BigInteger;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.Queue;
 import java.util.UUID;
-import java.util.logging.Handler;
 import java.util.logging.LogRecord;
 
 import blogsdpteamg.mobilecameracontrol.Connecting.ServerConnectThread;
@@ -66,7 +70,6 @@ public class MainActivity extends AppCompatActivity
     private UUID mUUID;
     private ConnectThread connection;
     private Queue<String> packets;
-    public static int MESSAGE_READ = 2;
 
     /**
      * Servo Angles and degree steps
@@ -79,10 +82,23 @@ public class MainActivity extends AppCompatActivity
     /**
      * Message Handler
      */
-    //private static Handler mHandler;
-
+    private final Handler mHandler = new Handler()
+    {
+        @Override
+        public void handleMessage(Message msg)
+        {
+            String temp = new String((byte[])msg.obj);
+            Log.d("Packet Received",temp);
+            addMessage(temp);
+        }
+    };
 
     public static int REQUEST_BLUETOOTH = 1;
+
+    public void addMessage(String msg)
+    {
+        packets.add(msg);
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -96,8 +112,7 @@ public class MainActivity extends AppCompatActivity
 
         // Set up the drawer.
         mNavigationDrawerFragment.setUp(
-                R.id.navigation_drawer,
-                (DrawerLayout) findViewById(R.id.drawer_layout));
+                R.id.navigation_drawer, (DrawerLayout) findViewById(R.id.drawer_layout));
 
         // Setup Bluetooth
         connection = null;
@@ -109,6 +124,9 @@ public class MainActivity extends AppCompatActivity
                 new BigInteger(temp2.substring(16),16).longValue()
         );
 
+        packets = new LinkedList<String>();
+
+
         if(!BTAdapter.isEnabled())
         {
             Intent enableBT = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
@@ -118,8 +136,8 @@ public class MainActivity extends AppCompatActivity
         // Setup Servo controls
         pitch = (float) 65.0;
         yaw = (float) 85.0;
-        pitchStep = (float) 2.5;
-        yawStep = (float) 2.5;
+        pitchStep = (float) 5.0;
+        yawStep = (float) 5.0;
     }
 
 
@@ -211,8 +229,10 @@ public class MainActivity extends AppCompatActivity
     {
         device = BTAdapter.getRemoteDevice(id);
 
-        connection = new ConnectThread(device,mUUID);
+        connection = new ConnectThread(device,mUUID,mHandler);
         connection.connect();
+        connection.start();
+        //connection.run();
     }
 
     @Override
@@ -236,30 +256,34 @@ public class MainActivity extends AppCompatActivity
                 switch (id) {
                     case "UP":
                         float newPitchUp = pitch + pitchStep;
-                        packet += "%PWM%PITCH" + String.valueOf(newPitchUp) + "%YAW" + String.valueOf(yaw) + "$";
+                        packet += "%PWM%PITCH" + String.valueOf(newPitchUp) + "%YAW" + String.valueOf(yaw) + "$\n";
                         Log.d("Bluetooth", "Sending packet[" + packet + "]\n");
                         connection.write(packet.getBytes());
+                        pitch = newPitchUp;
                         break;
                     case "DOWN":
                         float newPitchDown = pitch - pitchStep;
-                        packet += "%PWM%PITCH" + String.valueOf(newPitchDown) + "%YAW" + String.valueOf(yaw) + "$";
+                        packet += "%PWM%PITCH" + String.valueOf(newPitchDown) + "%YAW" + String.valueOf(yaw) + "$\n";
                         Log.d("Bluetooth", "Sending packet[" + packet + "]\n");
                         connection.write(packet.getBytes());
+                        pitch = newPitchDown;
                         break;
                     case "LEFT":
                         float newYawLeft = yaw - yawStep;
-                        packet += "%PWM%PITCH" + String.valueOf(pitch) + "%YAW" + String.valueOf(newYawLeft) + "$";
+                        packet += "%PWM%PITCH" + String.valueOf(pitch) + "%YAW" + String.valueOf(newYawLeft) + "$\n";
                         Log.d("Bluetooth", "Sending packet[" + packet + "]\n");
                         connection.write(packet.getBytes());
+                        yaw = newYawLeft;
                         break;
                     case "RIGHT":
                         float newYawRight = yaw + yawStep;
-                        packet += "%PWM%PITCH" + String.valueOf(pitch) + "%YAW" + String.valueOf(newYawRight) + "$";
+                        packet += "%PWM%PITCH" + String.valueOf(pitch) + "%YAW" + String.valueOf(newYawRight) + "$\n";
                         Log.d("Bluetooth", "Sending packet[" + packet + "]\n");
                         connection.write(packet.getBytes());
+                        yaw = newYawRight;
                         break;
                     case "CAPTURE":
-                        packet += "%CAMERA%DOWNLOAD" + String.valueOf(false) + "$";
+                        packet += "%CAMERA%DOWNLOAD" + String.valueOf(0) + "$\n";
                         Log.d("Bluetooth", "Sending packet[" + packet + "]\n");
                         connection.write(packet.getBytes());
                         break;

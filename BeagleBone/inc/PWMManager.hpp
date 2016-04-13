@@ -10,8 +10,14 @@
 #include "BlackADC.h"
 
 // Constants
-const int DEFAULT_PITCH = 65;
-const int DEFAULT_YAW = 85;
+const int DEFAULT_PITCH = 65.0;
+const int DEFAULT_YAW 	= 83.0;
+
+const int MAX_PITCH 	= 86.0;
+const int MAX_YAW 	= 170.0;
+
+const int MIN_PITCH 	= 39.0;
+const int MIN_YAW	= 11.0;
 
 class PWMManager
 {
@@ -22,7 +28,7 @@ class PWMManager
 			static PWMManager theManager;
 			return theManager;
 		}
-		
+
 		// PWM functions
 		bool setPitch(float angle);
 		float getCurrentPitch();

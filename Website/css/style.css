@@ -1,0 +1,15 @@
+body{
+}
+#container{
+  width: 640px;
+  height: 341px;
+  /*text-align: center;*/
+  background-image: url("../img/phone.png");
+  background-size: cover;
+}
+#phone{
+  width: 500px;
+  height: 284px;
+  margin-left: 11.41%;
+  margin-top: 4.15%;
+}

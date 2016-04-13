@@ -1,0 +1,5 @@
+http://html5doctor.com/video-canvas-magic/
+
+http://phoboslab.org/log/2013/09/html5-live-video-streaming-via-websockets
+
+https://github.com/131/h264-live-player

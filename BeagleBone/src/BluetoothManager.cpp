@@ -5,6 +5,8 @@
 #include <cstring>
 #include <cstddef>
 #include <termios.h>
+#include <chrono>
+#include <cstdlib>
 
 BluetoothManager::BluetoothManager():
 m_UART(BlackLib::UART5),
@@ -13,7 +15,10 @@ packets(),
 m_thread()
 {
 	// UART Setup
+	m_UART.setParity(BlackLib::ParityOdd);
 	m_UART.open(BlackLib::ReadWrite | BlackLib::NonBlock);
+	m_UART.setBaudRate(BlackLib::Baud115200, BlackLib::output, BlackLib::ApplyNow);
+	m_UART.setBaudRate(BlackLib::Baud115200, BlackLib::input, BlackLib::ApplyNow);	
 	m_UART.flush(BlackLib::bothDirection);
 	// Thread Startup
 	startThread();
@@ -32,10 +37,10 @@ void BluetoothManager::test()
 
 bool BluetoothManager::sendString(std::string message)
 {
-	bool retval = m_UART.write(const_cast<char*>(message.c_str()), sizeof(message.c_str()));
-	m_UART.flush(BlackLib::output);
-	std::cout << retval << std::endl;
-	return m_UART.write(const_cast<char*>(message.c_str()), sizeof(message.c_str()));
+	bool retval = m_UART.write(message);
+	m_UART.flush(BlackLib::bothDirection);
+	std::cout << message << "\b ";
+	return retval;
 }
 
 std::string BluetoothManager::readString()
@@ -76,23 +81,23 @@ bool BluetoothManager::ThreadMain()
 		std::string temp = m_UART.read();
 		if(temp != BlackLib::UART_READ_FAILED)
 		{
-			std::cout << temp << std::endl;
-
 			// Check and see if this is an ack packet
 			std::size_t found = temp.find("ACK");
 			if(found != std::string::npos)
 			{
+				std::cout << "Acked ";
 				m_acked--;
-				m_UART.flush(BlackLib::input);
-				continue;
 			}
-
-			packets.push(temp);
-			if(!m_newPackets)
+			else
 			{
-				m_newPackets = true;
+				std::cout << temp << std::endl;
+				packets.push(temp);
+				if(!m_newPackets)
+				{
+					m_newPackets = true;
+				}
 			}
-			m_UART.flush(BlackLib::input);
+			m_UART.flush(BlackLib::bothDirection);
 		}
 	}
 
@@ -117,10 +122,9 @@ bool BluetoothManager::sendPicture()
 	numPackets = (numPackets % 256 == 0) ? numPackets : numPackets + 1;
 
 	//Let the app know how many packets are coming for the picture
-	std::string temp = "$%PICTURE%PACKETS";
+	std::string temp = "$PACKETS";
 	temp += std::to_string(numPackets);
-	temp += "$\n";
-	std::cout << temp << std::endl;
+	temp += "#\n";
 	if(!sendString(temp))
 	{
 		std::cout << "Send failed!" << std::endl;
@@ -132,24 +136,31 @@ bool BluetoothManager::sendPicture()
 	// Set pointer back to beginning
 	photoFile.seekg(0, std::ios::beg);
 
+	/*
 	//for(int i = 0; i < numPackets; ++i)
 	char c[257];
 	int len;
 	while((len = photoFile.readsome(c,256)) > 0)
 	{
 		// Create packet
-		std::string pack;
-		pack += '\u0002';
+		std::string pack = "<";
 
 		std::cout << c << std::endl;
+		pack += c;
 
 		// Once we have all chars of the packet, add the end char and send
-		pack += '\u0003';
+		pack += '>';
 		pack += '\n';
 		sendString(pack);
+		std::this_thread::sleep_for(std::chrono::microseconds(500));
 		m_acked++;
 		// Make sure we have less than 5 unacked packets
-		while(m_acked < 5);
+		//while(m_acked > 5);
 	}
+	*/
+
+	system("cat capture.jpg > /dev/ttyO5");
+
+	sendString("$TRANSMISSION%DONE#\n");
 
 }

@@ -54,6 +54,9 @@ bool UserThread::ThreadMain()
 				case CameraPacket:
 					response = decodeCameraPacket(pack);
 					break;
+				case SwitchPacket:
+					response = decodeSwitchPacket(pack);
+					break;
 				case BadPacket:
 					// Ignore this Packet
 					continue;
@@ -102,17 +105,25 @@ PacketType UserThread::decodePacket(std::string packet)
 		return CameraPacket;
 	}
 
+	found = packet.find("%CHANGE");
+
+	// Switch Packet
+	if(found != std::string::npos)
+	{
+		return SwitchPacket;
+	}
+
 	// Else return bad packet
 	return BadPacket;
 }
 
 // PWM Packet
-// $%PWM%PITCH[ANGLE]%YAW[ANGLE]$
+// $%PWM%PITCH[ANGLE]%YAW[ANGLE]#
 bool UserThread::decodePWMPacket(std::string packet)
 {
 	// Get Locations
 	std::size_t start = packet.find("$");
-	std::size_t stop = packet.substr(start+1).find("$") + 1;
+	std::size_t stop = packet.substr(start+1).find("#") + 1;
 	std::size_t pitchLoc = packet.find("%PITCH");
 	std::size_t yawLoc = packet.find("%YAW");
 
@@ -127,7 +138,14 @@ bool UserThread::decodePWMPacket(std::string packet)
 	{
 		// Length is the difference between the beginning of the angle (pitchLoc + 6)
 		// and beginning of %YAW
-		pitch = packet.substr(pitchLoc + 6,(yawLoc - (pitchLoc + 6)));
+		try
+		{
+			pitch = packet.substr(pitchLoc + 6,(yawLoc - (pitchLoc + 6)));
+		}
+		catch(...)
+		{
+			std::cerr << "Bad set!" << std::endl;
+		}
 	}
 	else
 	{
@@ -137,7 +155,14 @@ bool UserThread::decodePWMPacket(std::string packet)
 	if(stop != std::string::npos)
 	{
 		// Length of Yaw is beginning of angle until final '$'
-		yaw = packet.substr(yawLoc + 4,(stop - (yawLoc + 4)));
+		try
+		{
+			yaw = packet.substr(yawLoc + 4,(stop - (yawLoc + 4)));
+		}
+		catch(...)
+		{
+			std::cerr << "Bad Cast!" << std::endl;
+		}
 	}
 	else
 	{
@@ -167,7 +192,7 @@ bool UserThread::decodePWMPacket(std::string packet)
 }
 
 // Camera Packet
-// $%CAMERA%DOWNLOAD[True '1' or false '0']$
+// $%CAMERA%DOWNLOAD[True '1' or false '0']#
 bool UserThread::decodeCameraPacket(std::string packet)
 {
 	// See if we need to send the picture we take
@@ -199,4 +224,25 @@ bool UserThread::decodeCameraPacket(std::string packet)
 	}
 	
 	return retval;
+}
+
+// Switch Packet
+// $%CHANGE[Embedded '1' or Attached '0']#
+bool UserThread::decodeSwitchPacket(std::string packet)
+{
+	// Switch the camera we are using
+	std::size_t change = packet.find("E");
+
+	if(change != std::string::npos)
+	{
+		std::string temp = packet.substr(change + 1,1);
+
+		while(!AttCam().Lock());
+		AttCam().switchCamera(((temp == "1") ? true : false));
+		AttCam().Unlock();
+
+		return true;
+	}
+
+	return false;
 }

@@ -12,7 +12,8 @@ enum PacketType
 {
 	PWMPacket	= 1,
 	CameraPacket	= 2,
-	BadPacket	= 3
+	SwitchPacket    = 3,
+	BadPacket	= 4
 };
 
 class UserThread
@@ -25,6 +26,7 @@ class UserThread
 		PacketType decodePacket(std::string packet);
 		bool decodePWMPacket(std::string packet);
 		bool decodeCameraPacket(std::string packet);
+		bool decodeSwitchPacket(std::string packet);
 
 	public:
 		// Constructor and Destructor

@@ -1,5 +1,7 @@
 #include "VideoThread.hpp"
 #include "BluetoothManager.hpp"
+#include "AttachedCamera.hpp"
+#include "EmbeddedCamera.hpp"
 #include <iostream>
 #include <chrono>
 
@@ -32,12 +34,34 @@ bool VideoThread::ThreadMain()
 {
 	while(!m_stopThread)
 	{
-		// Package Video
+		while(!AttCam().Lock());
+		m_useEmbedded = AttCam().useEmbedded();
+		AttCam().Unlock();
+		if(!m_useEmbedded)
+		{
+			if(!AttCam().isRunning())
+			{
+				if(EmbCam().isRunning())
+				{
+					EmbCam().stopThread();
+				}
+				AttCam().startThread();
+			}
+		}
+		else
+		{
+			if(!EmbCam().isRunning())
+			{
+				if(AttCam().isRunning())
+				{
+					AttCam().stopThread();
+				}
+				EmbCam().startThread();
+			}
+		}
 
-		// Send Video
-		while(!BTMgr().Lock());
-		// Send feed
-		BTMgr().Unlock();
+		std::this_thread::sleep_for(std::chrono::milliseconds(100));		
+
 	}
 
 	return true;

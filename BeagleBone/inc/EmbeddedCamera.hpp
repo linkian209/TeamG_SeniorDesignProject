@@ -1,60 +1,57 @@
 /***************************
- * Attached Camera Control *
+ * Embedded Camera Control *
  * Author: Ian Drake       *
  * Copyright 2016          *
  ***************************/
-#ifndef ATTACHEDCAMERA_HPP
-#define ATTACHEDCAMERA_HPP
+#ifndef EMBEDDEDCAMERA_HPP
+#define EMBEDDEDCAMERA_HPP
 
 #include <cstdlib>
 #include <iostream>
 #include <mutex>
 #include <thread>
 
-// Attached Camera Class
-class AttachedCamera
+// Embedded Camera Class
+class EmbeddedCamera
 {
 	public:
 		// Singleton Access Function
-		friend AttachedCamera& AttCam()
+		friend EmbeddedCamera& EmbCam()
 		{
-			static AttachedCamera theCamera;
+			static EmbeddedCamera theCamera;
 			return theCamera;
 		}
 
 		// Mutex
-		std::mutex lock;
 		bool Lock() { return lock.try_lock(); }
 		void Unlock() { lock.unlock(); }
 
 		// Camera Functions
-		bool takePicture();
-		bool takePictureAndDownload();
-
 		void test();
 
-		// Thread Stuff
+		// Thread Functions
 		void startThread();
 		void stopThread();
-		bool isRunning() { return m_threadRunning; }
 		bool ThreadMain();
-		bool useEmbedded() { return m_useEmbedded; }
-		void switchCamera(bool embedded) { m_useEmbedded = embedded; }
-		
+		bool isRunning() { return m_threadRunning; }
 
 	private:
 		// Constructor and Destructor
-		AttachedCamera();
-		~AttachedCamera();
-
-		// Thread Stuff
+		EmbeddedCamera();
+		~EmbeddedCamera();
+		
+		// Thread
 		std::thread m_thread;
 		bool m_stopThread = false;
 		bool m_threadRunning = false;
-		bool m_useEmbedded = false;
+
+		// Mutex
+		std::mutex lock;
+		bool m_Cam;
+
 };
 
 //Declare Singleton Access Function
-AttachedCamera& AttCam();
+EmbeddedCamera& EmbCam();
 
 #endif

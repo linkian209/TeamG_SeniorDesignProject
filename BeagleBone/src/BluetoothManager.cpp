@@ -15,9 +15,6 @@ m_thread()
 	// UART Setup
 	m_UART.open(BlackLib::ReadWrite | BlackLib::NonBlock);
 	m_UART.flush(BlackLib::bothDirection);
-	std::cout << m_UART.getReadBufferSize() << std::endl;
-	m_UART.setReadBufferSize(2048);
-	std::cout << m_UART.getReadBufferSize() << std::endl;
 	// Thread Startup
 	startThread();
 }
@@ -30,7 +27,7 @@ BluetoothManager::~BluetoothManager()
 
 void BluetoothManager::test()
 {
-	std::cout << m_UART.getPortName() << std::endl;
+	std::cout << "BluetoothManager: OK!" << std::endl;
 }
 
 bool BluetoothManager::sendString(std::string message)

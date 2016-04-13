@@ -28,6 +28,7 @@ class AttachedCamera
 
 		// Camera Functions
 		bool takePicture();
+		bool takePictureAndDownload();
 
 		void test();
 

@@ -13,10 +13,10 @@ AttachedCamera::~AttachedCamera()
 
 void AttachedCamera::test()
 {
-	std::cout << "Successfully accessed Attached Camera!" << std::endl;
+	std::cout << "AttachedCamera: OK!" << std::endl;
 }
 
-bool AttachedCamera::takePicture()
+bool AttachedCamera::takePictureAndDownload()
 {
 	// Take the picture
 	std::string cmd = "gphoto2 --capture-image-and-download --filename \'capture.jpg\' --keep";
@@ -35,4 +35,17 @@ bool AttachedCamera::takePicture()
 	system("rm capture.jpg");
 
 	return retval;
+}
+
+bool AttachedCamera::takePicture()
+{
+	//Take the picture
+	std::string cmd = "gphoto2 --capture-image";
+	int ret = system(cmd.c_str());
+	if(ret != 0)
+	{
+		return false;	
+	}
+	
+	return true;
 }

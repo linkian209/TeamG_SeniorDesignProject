@@ -1,0 +1,37 @@
+<html>
+  <head>
+    <link rel="stylesheet" type="text/stylesheet"href="css/style.css">
+    <script type="text/javascript" src="js/jsmpg.js"></script>
+  </head>
+  <body>
+    <div id="container">
+      <canvas id="phone">
+        No Canvas
+      </canvas>
+    </div>
+    <script>
+      var test = false;
+      var canvas = document.getElementById('phone');
+      var context = canvas.getContext('2d');
+      if(test)
+      {
+        make_base();
+
+        function make_base()
+        {
+          var img = new Image();
+          img.src = "img/test.jpg";
+          img.onload = function(){
+            context.drawImage(img,0,0,img.width,img.height,0,0,canvas.width,canvas.height);
+          }
+        }
+      }
+      else {
+        {
+          var client = new WebSocket('ws://192.168.7.2:8084');
+          var player = new jsmpg(client,{canvas:canvas});
+        }
+      }
+    </script>
+  </body
+</html>

@@ -34,31 +34,28 @@ void EmbeddedCamera::stopThread()
 	{
 		m_thread.join();
 	}
+
+	m_threadRunning = false;
 }
 
 bool EmbeddedCamera::ThreadMain()
 {
 	m_threadRunning = true;
 
-	system("ffmpeg -s 500x284 -f video4linux2 -i /dev/video0 -f mpeg1video -r 20 http://localhost:82/1234/500/284 &");
+	system("ffmpeg -s 320x240 -r 20 -f video4linux2 -i /dev/video0 -f mpeg1video http://localhost:82/1234/320/240 &");
 	
 	while(!m_stopThread);
 
 	// Kill stream
-	system("ps aux | grep ffmpeg > out");
+	system("ps aux | pgrep ffmpeg > out");
 
 	std::ifstream file("out");
 
-	std::string temp, last;
+	std::string temp;
 	while(file >> temp)
 	{
-		if(last == "root")
-		{
-			std::string cmd = "kill -9 " + temp + " &";
-			system(const_cast<char*>(cmd.c_str()));
-		}
-
-		last = temp;
+		std::string cmd = "kill -9 " + temp + " &";
+		system(const_cast<char*>(cmd.c_str()));		
 	}
 
 	std::remove("out");

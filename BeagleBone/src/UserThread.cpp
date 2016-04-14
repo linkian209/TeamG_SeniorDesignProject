@@ -121,128 +121,176 @@ PacketType UserThread::decodePacket(std::string packet)
 // $%PWM%PITCH[ANGLE]%YAW[ANGLE]#
 bool UserThread::decodePWMPacket(std::string packet)
 {
-	// Get Locations
-	std::size_t start = packet.find("$");
-	std::size_t stop = packet.substr(start+1).find("#") + 1;
-	std::size_t pitchLoc = packet.find("%PITCH");
-	std::size_t yawLoc = packet.find("%YAW");
-
-	// Strings of the new angles, defaults to current angles
-	std::string pitch = std::to_string(PWMMgr().getCurrentPitch());
-	std::string yaw = std::to_string(PWMMgr().getCurrentYaw());
-
-	// Return value, just to know if we got a good packet and made changes accordingly
-	bool retval = true;
-
-	if(pitchLoc != std::string::npos && yawLoc != std::string::npos)
-	{
-		// Length is the difference between the beginning of the angle (pitchLoc + 6)
-		// and beginning of %YAW
-		try
-		{
-			pitch = packet.substr(pitchLoc + 6,(yawLoc - (pitchLoc + 6)));
-		}
-		catch(...)
-		{
-			std::cerr << "Bad set!" << std::endl;
-		}
-	}
-	else
-	{
-		retval = false;
-	}
-
-	if(stop != std::string::npos)
-	{
-		// Length of Yaw is beginning of angle until final '$'
-		try
-		{
-			yaw = packet.substr(yawLoc + 4,(stop - (yawLoc + 4)));
-		}
-		catch(...)
-		{
-			std::cerr << "Bad Cast!" << std::endl;
-		}
-	}
-	else
-	{
-		retval = false;	
-	}
-
-	// Try to change angles
 	try
 	{
-		PWMMgr().setYaw(std::stof(yaw));
-	}
-	catch(std::bad_cast& bc)
-	{
-		std::cerr << "bad_cast caught: " << bc.what() << std::endl;
-	}
+		// Get Locations
+		std::size_t start = packet.find("$");
+		std::size_t stop = packet.substr(start+1).find("#") + 1;
+		std::size_t pitchLoc = packet.find("%PITCH");
+		std::size_t yawLoc = packet.find("%YAW");
 
-	try
-	{
-		PWMMgr().setPitch(std::stof(pitch));
-	}
-	catch(std::bad_cast& bc)
-	{
-		std::cerr << "bad_cast caught: " << bc.what() << std::endl;
-	}
+		// Strings of the new angles, defaults to current angles
+		std::string pitch = std::to_string(PWMMgr().getCurrentPitch());
+		std::string yaw = std::to_string(PWMMgr().getCurrentYaw());
 
-	return retval;
+		// Return value, just to know if we got a good packet and made changes accordingly
+		bool retval = true;
+
+		if(pitchLoc != std::string::npos && yawLoc != std::string::npos)
+		{
+			// Length is the difference between the beginning of the angle (pitchLoc + 6)
+			// and beginning of %YAW
+			try
+			{
+				pitch = packet.substr(pitchLoc + 6,(yawLoc - (pitchLoc + 6)));
+			}
+			catch(...)
+			{
+				std::cerr << "Bad set!" << std::endl;
+			}
+		}
+		else
+		{
+			retval = false;
+		}
+
+		if(stop != std::string::npos)
+		{
+			// Length of Yaw is beginning of angle until final '$'
+			try
+			{
+				yaw = packet.substr(yawLoc + 4,(stop - (yawLoc + 4)));
+			}
+			catch(...)
+			{
+				std::cerr << "Bad Cast!" << std::endl;
+			}
+		}
+		else
+		{
+			retval = false;	
+		}
+
+		// Try to change angles
+		try
+		{
+			PWMMgr().setYaw(std::stof(yaw));
+		}
+		catch(std::bad_cast& bc)
+		{
+			std::cerr << "bad_cast caught: " << bc.what() << std::endl;
+		}
+
+		try
+		{
+			PWMMgr().setPitch(std::stof(pitch));
+		}
+		catch(std::bad_cast& bc)
+		{
+			std::cerr << "bad_cast caught: " << bc.what() << std::endl;
+		}
+
+		return retval;
+	
+	}
+	catch(...)
+	{
+		return false;
+	}
 }
 
 // Camera Packet
 // $%CAMERA%DOWNLOAD[True '1' or false '0']#
 bool UserThread::decodeCameraPacket(std::string packet)
 {
-	// See if we need to send the picture we take
-	std::size_t down = packet.find("%DOWNLOAD");
-	bool download = false;
-	bool retval = true;
-
-	if(down != std::string::npos)
+	try
 	{
-		std::string temp = packet.substr(down + 9, 1);
+		// See if we need to send the picture we take
+		std::size_t down = packet.find("%DOWNLOAD");
+		bool download = false;
+		bool retval = true;
 
-		download = (temp == "1") ? true : false;
-	}
+		if(down != std::string::npos)
+		{
+			std::string temp = packet.substr(down + 9, 1);
 
-	if(download)
-	{
-		// Capture and Download
-		while(!AttCam().Lock());
-		retval = AttCam().takePictureAndDownload();
-		AttCam().Unlock();
+			download = (temp == "1") ? true : false;
+		}
+
+		if(download)
+		{
+			// Capture and Download
+			while(!AttCam().Lock());
+			bool running = AttCam().isRunning();
+			if(running)
+			{
+				AttCam().Halt();
+				AttCam().stopThread();
+				std::this_thread::sleep_for(std::chrono::milliseconds(10));
+			}
+			retval = AttCam().takePictureAndDownload();
+			if(running)
+			{
+				AttCam().startThread();
+				AttCam().Start();
+				std::this_thread::sleep_for(std::chrono::milliseconds(100));
+			}
+			AttCam().Unlock();
 		
-	}
-	else
-	{
-		// Just Capture
-		while(!AttCam().Lock());
-		retval = AttCam().takePicture();
-		AttCam().Unlock();
-	}
+		}
+		else
+		{
+			// Just Capture
+			while(!AttCam().Lock());
+			bool running = AttCam().isRunning();
+			if(running)
+			{
+				AttCam().Halt();
+				AttCam().stopThread();
+				std::this_thread::sleep_for(std::chrono::milliseconds(10));
+			}
+			retval = AttCam().takePicture();
+			if(running)
+			{
+				AttCam().startThread();
+				AttCam().Start();
+				std::this_thread::sleep_for(std::chrono::milliseconds(100));
+			}
+			AttCam().Unlock();
+		}
 	
-	return retval;
+		return retval;
+	}
+	catch(...)
+	{
+		return false;
+	}
 }
 
 // Switch Packet
 // $%CHANGE[Embedded '1' or Attached '0']#
 bool UserThread::decodeSwitchPacket(std::string packet)
 {
-	// Switch the camera we are using
-	std::size_t change = packet.find("E");
-
-	if(change != std::string::npos)
+	try
 	{
-		std::string temp = packet.substr(change + 1,1);
+		// Switch the camera we are using
+		std::size_t change = packet.find("E");
 
-		while(!AttCam().Lock());
-		AttCam().switchCamera(((temp == "1") ? true : false));
-		AttCam().Unlock();
+		if(change != std::string::npos)
+		{
+			std::string temp = packet.substr(change + 1,1);
+		
+			while(!AttCam().Lock());
+			AttCam().switchCamera(((temp == "1") ? true : false));
+			AttCam().Unlock();
 
-		return true;
+			return true;
+		}
+
+		return false;
 	}
-
-	return false;
+	catch(...)
+	{
+		return false;
+	}
 }

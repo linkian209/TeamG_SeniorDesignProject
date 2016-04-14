@@ -40,6 +40,9 @@ class AttachedCamera
 		bool ThreadMain();
 		bool useEmbedded() { return m_useEmbedded; }
 		void switchCamera(bool embedded) { m_useEmbedded = embedded; }
+		void Halt() { m_run = false; }
+		void Start() { m_run = true; }
+		bool GoOrNo() { return m_run; }
 		
 
 	private:
@@ -47,11 +50,15 @@ class AttachedCamera
 		AttachedCamera();
 		~AttachedCamera();
 
+		// Picture Stuff
+		int m_currentPic = 0;
+
 		// Thread Stuff
 		std::thread m_thread;
 		bool m_stopThread = false;
 		bool m_threadRunning = false;
 		bool m_useEmbedded = false;
+		bool m_run = true;
 };
 
 //Declare Singleton Access Function

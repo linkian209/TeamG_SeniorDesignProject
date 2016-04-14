@@ -31,14 +31,10 @@ bool AttachedCamera::takePictureAndDownload()
 
 	bool retval = true;
 
-/*
-	// Send picture to app
-	while(!BTMgr().Lock());
-	bool retval = BTMgr().sendPicture();
-	BTMgr().Unlock();
-
-	system("rm capture.jpg");
-*/
+	std::string rmv = "rm /www/pages/img/current" + std::to_string(m_currentPic) + ".jpg";
+	system(const_cast<char*>(rmv.c_str()));
+	std::string mv = "mv capture.jpg /www/pages/img/current" + std::to_string(++m_currentPic) + ".jpg";
+	system(const_cast<char*>(mv.c_str()));
 	return retval;
 }
 
@@ -68,55 +64,43 @@ void AttachedCamera::stopThread()
 	{
 		m_thread.join();
 	}
-
+	
 	m_threadRunning = false;
 }
 
 bool AttachedCamera::ThreadMain()
 {
 	m_threadRunning = true;
-	std::cout << "Att Cam Thread running! " << m_threadRunning << std::endl;
 
-	system("gphoto2 --capture-movie --stdout | ffmpeg -f mjpeg -i pipe:0 -f mpeg1video -r 20 http://localhost:82/1234/500/284 &");
+	system("gphoto2 --capture-movie --stdout | ffmpeg -f mjpeg -i pipe:0 -f mpeg1video -r 20 http://localhost:82/1234/320/240 > log.txt &");
 
 	while(!m_stopThread);
 
 	// Kill Stream
-	system("ps aux | grep gphoto2 > out");
+	system("ps aux | pgrep gphoto2 > out");
 
 	std::ifstream file("out");
-	std::string temp, last;
+	std::string temp;
 
 	while(file >> temp)
 	{
-		if(last == "root")
-		{
-			std::string cmd = "kill -9 "+ temp + " &";
-			system(const_cast<char*>(cmd.c_str()));
-		}
-
-		last = temp;
+		std::string cmd = "kill -9 "+ temp ;
+		system(const_cast<char*>(cmd.c_str()));
 	}
 
 	file.close();
 
 	std::remove("out");
 
-	system("ps aux | grep ffmpeg > out");
+	system("ps aux | pgrep ffmpeg > out");
 
 	file.open("out");
 	temp = "";
-	last = "";
 
 	while(file >> temp)
 	{
-		if(last == "root")
-		{
-			std::string cmd = "kill -9 "+ temp + " &";
-			system(const_cast<char*>(cmd.c_str()));
-		}
-
-		last = temp;
+		std::string cmd = "kill -9 "+ temp;
+		system(const_cast<char*>(cmd.c_str()));
 	}
 
 	file.close();
